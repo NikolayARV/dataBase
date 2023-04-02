@@ -6,8 +6,8 @@ public class Application {
         final String password = "Zxc13579";
         final String url = "jdbc:postgresql://localhost:5432/skypro";
 
-        try (final Connection connection = DriverManager.getConnection((url), user, password);
-             PreparedStatement statement = connection.prepareStatement("SELECT * FROM employee WHERE id = (?)")) {
+        try (Connection connection = DriverManager.getConnection(url, user, password);
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM employee WHERE employee_id = (?)")) {
             statement.setInt(1, 3);
             final ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
