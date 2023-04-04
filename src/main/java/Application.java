@@ -1,28 +1,31 @@
+import model.Employee;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 import java.sql.*;
+import java.util.List;
 
 public class Application {
-    public static void main(String[] args) throws SQLException {
-        final String user = "postgres";
-        final String password = "Zxc13579";
-        final String url = "jdbc:postgresql://localhost:5432/skypro";
+    public static void main(String[] args)  {
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("myPersistanceUnit");
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-        try (Connection connection = DriverManager.getConnection(url, user, password);
-             PreparedStatement statement = connection.prepareStatement("SELECT * FROM employee WHERE employee_id = (?)")) {
-            statement.setInt(1, 3);
-            final ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                String name = "Имя: " + resultSet.getString("first_name");
-                String lastName = "Фамилия: " + resultSet.getString("last_name");
-                String gender = "Пол: " + resultSet.getString("gender");
-                int city_id = resultSet.getInt("city_id");
+        entityManager.getTransaction().begin();
 
-                System.out.println(name);
-                System.out.println(lastName);
-                System.out.println(gender);
-                System.out.println("id города: " + city_id);
-            }
+        String jpqlQuery = "SELECT e FROM Employee e WHERE e.age> :minAge";
+        TypedQuery<Employee> query = entityManager.createQuery(jpqlQuery, Employee.class);
+        query.setParameter("minAge", 30);
+        List<Employee> employees = query.getResultList();
+        System.out.println(employees);
 
-        }
+        entityManager.getTransaction().commit();
+
+
+        entityManager.close();
+        entityManagerFactory.close();
+
     }
 }
 

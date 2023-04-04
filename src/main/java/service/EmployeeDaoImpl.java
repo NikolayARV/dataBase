@@ -13,9 +13,6 @@ import java.util.List;
 
 public class EmployeeDaoImpl implements EmployeeDao {
 
-
-
-
     @Override
     public void add(Employee employee) {
         try (PreparedStatement statement = ConnectionConfig.getConnection().prepareStatement(
@@ -24,7 +21,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
             statement.setString(2, employee.getLast_name());
             statement.setString(3, employee.getGender());
             statement.setInt(4, employee.getAge());
-            statement.setInt(5, employee.getCity().getCity_id());
+            statement.setInt(5, employee.getCity());
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -46,7 +43,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
                 employee.setLast_name(resultSet.getString("last_name"));
                 employee.setGender(resultSet.getString("gender"));
                 employee.setAge(resultSet.getInt(5));
-                employee.setCity(new City((resultSet.getInt("city_id")), resultSet.getString("city_name")));
+                employee.setCity(new City((resultSet.getInt("city_id")), resultSet.getString("city_name")).getCity_id());
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -69,7 +66,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
                 int age = Integer.parseInt(resultSet.getString("age"));
                 City city = new City(resultSet.getInt("city_id"),
                         resultSet.getString("city_name"));
-                employees.add(new Employee(id, firstName, lastName, gender, age, city));
+                employees.add(new Employee(id, firstName, lastName, gender, age, city.getCity_id()));
             }
 
         } catch (SQLException e) {
@@ -79,7 +76,7 @@ public class EmployeeDaoImpl implements EmployeeDao {
         }
 
     @Override
-    public void updateEmployee(int id, Employee employee) {
+    public void updateEmployee(Employee employee) {
         try (
                 PreparedStatement statement = ConnectionConfig.getConnection().prepareStatement(
                 "UPDATE employee SET first_name = (?), last_name = (?), gender = (?), age = (?), city_id = (?) WHERE id = (?)")) {
@@ -87,8 +84,8 @@ public class EmployeeDaoImpl implements EmployeeDao {
             statement.setString(2, employee.getLast_name());
             statement.setString(3, employee.getGender());
             statement.setInt(4, employee.getAge());
-            statement.setInt(5, employee.getCity().getCity_id());
-            statement.setInt(6, id);
+            statement.setInt(5, employee.getCity());
+            statement.setInt(6, employee.getId());
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -96,11 +93,11 @@ public class EmployeeDaoImpl implements EmployeeDao {
     }
 
     @Override
-    public void deleteEmployee(int id) {
+    public void deleteEmployee(Employee employee) {
         try (
                 PreparedStatement statement = ConnectionConfig.getConnection().prepareStatement(
                         "DELETE FROM employee WHERE id = (?)")) {
-            statement.setInt(1, id);
+            statement.setInt(1, employee.getId());
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
